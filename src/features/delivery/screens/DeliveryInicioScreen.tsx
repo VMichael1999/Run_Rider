@@ -6,21 +6,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Reanimated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { useDeliveryColors } from '../theme';
 import { useStatusBarStyle } from '../hooks/useStatusBarStyle';
-import { useOrderSimulation } from '../hooks/useOrderSimulation';
-import { useActiveOrderStore } from '../store/useActiveOrderStore';
-import { formatClock } from '../utils/orderSimulation';
+import { useOrderPill } from '../hooks/useOrderPill';
+import { useTabBarScrollY, useTabBarSpace } from '../components/tabbar/TabBarScroll';
 import { DeliveryDrawer } from '../components/DeliveryDrawer';
 import { HomeHeader } from '../components/inicio/HomeHeader';
 import { CategoryStrip, DealStrip, HeroBanner, SectionHeader } from '../components/inicio/HomeBlocks';
-import { OrderPill } from '../components/inicio/OrderPill';
 import { RestaurantCard } from '../components/RestaurantCard';
-import { ACTIVE_ORDER, CATEGORIES, DEALS, HOME_SECTIONS, RESTAURANTS, RESTAURANT_DETAILS } from '../data/mock';
+import { CATEGORIES, DEALS, HOME_SECTIONS, RESTAURANTS, RESTAURANT_DETAILS } from '../data/mock';
 
 /** Alto de la cabecera abierta sin la barra de estado: 10 + fila de dirección 40 + 12 + buscador 46 + 14. */
 const HEADER_BODY = 122;
-/** El aviso del pedido queda 21 por encima de la barra de pestañas (bottom:90px sobre una barra de 68.8). */
-const PILL_GAP = 21;
-const PILL_HEIGHT = 58;
 
 /** Inicio de delivery (del-03 / del-04). */
 export function DeliveryInicioScreen() {
@@ -32,25 +27,18 @@ export function DeliveryInicioScreen() {
   // La cabecera es oscura (.sb.w).
   useStatusBarStyle('light');
 
+  // El pedido en curso va en el accessory de la barra; el scroll también la minimiza.
+  const hasAccessory = useOrderPill() !== null;
+  const bottomSpace = useTabBarSpace(hasAccessory);
+  const tabBarScrollY = useTabBarScrollY();
+
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
+    tabBarScrollY.value = event.contentOffset.y;
   });
 
   const navigation = useNavigation<NavigationProp<DeliveryStackParamList>>();
   const noop = React.useCallback(() => undefined, []);
-
-  // Aviso del pedido en curso: el real si hay uno; si no, el del mockup (del-03).
-  const order = useActiveOrderStore((s) => s.order);
-  const sim = useOrderSimulation(order?.startedAt ?? null);
-  const pill = !order
-    ? { status: ACTIVE_ORDER.status, minutes: ACTIVE_ORDER.minutesLeft[ACTIVE_ORDER.status], arrivesAt: ACTIVE_ORDER.arrivesAt }
-    : sim && sim.phase !== 'entregado'
-    ? {
-        status: (sim.phase === 'recogido' || sim.phase === 'en-camino' ? 'en-camino' : 'preparando') as 'preparando' | 'en-camino',
-        minutes: sim.minutesLeft,
-        arrivesAt: formatClock(new Date(order.startedAt + 20 * 60000)),
-      }
-    : null;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
@@ -60,7 +48,7 @@ export function DeliveryInicioScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.content,
-          { paddingTop: insets.top + HEADER_BODY + 4, paddingBottom: PILL_GAP + PILL_HEIGHT + 14 },
+          { paddingTop: insets.top + HEADER_BODY + 4, paddingBottom: bottomSpace },
         ]}
       >
         <HeroBanner />
@@ -86,15 +74,6 @@ export function DeliveryInicioScreen() {
       </Reanimated.ScrollView>
 
       <HomeHeader topInset={insets.top} scrollY={scrollY} onAvatarPress={() => setDrawerOpen(true)} />
-      {pill ? (
-        <OrderPill
-          status={pill.status}
-          minutes={pill.minutes}
-          arrivesAt={pill.arrivesAt}
-          bottom={PILL_GAP}
-          onPress={order ? () => navigation.navigate('DeliverySeguimiento') : undefined}
-        />
-      ) : null}
       <DeliveryDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </View>
   );
