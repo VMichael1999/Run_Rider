@@ -23,7 +23,8 @@
       "^@store/(.*)$": "<rootDir>/src/store/$1",
       "^@theme/(.*)$": "<rootDir>/src/theme/$1",
       "^@data/(.*)$": "<rootDir>/src/data/$1",
-      "^@config/(.*)$": "<rootDir>/src/config/$1"
+      "^@config/(.*)$": "<rootDir>/src/config/$1",
+      "^@modules/(.*)$": "<rootDir>/modules/$1"
     }
   },
   "dependencies": {
