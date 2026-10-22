@@ -48,7 +48,8 @@ export type DeliveryStackParamList = {
   DeliveryLocal: { restaurantId: string };
   DeliveryProducto: { productId: string };
   DeliveryCheckout: undefined;
-  DeliveryDireccion: undefined;
+  /** purpose 'guardar': agrega la dirección elegida a Direcciones guardadas. */
+  DeliveryDireccion: { purpose?: 'guardar' } | undefined;
   DeliverySeguimiento: undefined;
   // Menú lateral de delivery
   DeliveryPedidos: undefined;

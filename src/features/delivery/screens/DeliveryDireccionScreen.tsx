@@ -8,9 +8,11 @@ import type { DeliveryStackParamList } from '@navigation/types';
 import { FontFamily } from '@theme/fonts';
 import { DeliveryColors } from '@theme/colors';
 import { getCurrentLocationMarker, getPlaceNameFromCoordinates } from '@shared/utils/locationUtils';
+import { useDeliveryMapStyle } from '../hooks/useDeliveryMapStyle';
 import { useDeliveryColors } from '../theme';
 import { useStatusBarStyle } from '../hooks/useStatusBarStyle';
-import { useCheckoutStore } from '../store/useCheckoutStore';
+import { useCheckoutAddress, useCheckoutStore } from '../store/useCheckoutStore';
+import { useAddressesStore } from '../store/useAddressesStore';
 
 type Props = NativeStackScreenProps<DeliveryStackParamList, 'DeliveryDireccion'>;
 
@@ -23,12 +25,23 @@ function splitPlace(name: string) {
 }
 
 /** Cambiar dirección (del-12): mapa completo, pin fijo al centro y hoja con Confirmar ubicación. */
-export function DeliveryDireccionScreen({ navigation }: Props) {
+const LABELS: { label: string; icon: 'home-outline' | 'briefcase-outline' | 'location-outline' }[] = [
+  { label: 'Casa', icon: 'home-outline' },
+  { label: 'Trabajo', icon: 'briefcase-outline' },
+  { label: 'Otro', icon: 'location-outline' },
+];
+
+export function DeliveryDireccionScreen({ navigation, route }: Props) {
+  // 'guardar': agrega la dirección a Direcciones guardadas; si no, cambia la entrega de este pedido.
+  const saving = route.params?.purpose === 'guardar';
+  const addAddress = useAddressesStore((s) => s.add);
+  const [labelIndex, setLabelIndex] = React.useState(2);
   const colors = useDeliveryColors();
+  const mapStyle = useDeliveryMapStyle();
   const insets = useSafeAreaInsets();
   useStatusBarStyle('dark');
 
-  const address = useCheckoutStore((s) => s.address);
+  const address = useCheckoutAddress();
   const setAddress = useCheckoutStore((s) => s.setAddress);
   const mapRef = React.useRef<MapView>(null);
   const [center, setCenter] = React.useState(address.coordinate);
@@ -54,6 +67,18 @@ export function DeliveryDireccionScreen({ navigation }: Props) {
   };
 
   const confirm = () => {
+    if (saving) {
+      const chosen = LABELS[labelIndex];
+      addAddress({
+        label: chosen.label === 'Otro' ? place.title : chosen.label,
+        icon: chosen.icon,
+        street: place.title,
+        detail: [place.title, place.detail].filter(Boolean).join(', '),
+        coordinate: center,
+      });
+      navigation.goBack();
+      return;
+    }
     setAddress({ label: place.title, detail: place.detail, coordinate: center });
     navigation.goBack();
   };
@@ -63,6 +88,7 @@ export function DeliveryDireccionScreen({ navigation }: Props) {
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
+        {...mapStyle}
         style={StyleSheet.absoluteFill}
         initialRegion={{ ...address.coordinate, latitudeDelta: DELTA, longitudeDelta: DELTA }}
         onRegionChangeComplete={(region) => void onRegionChangeComplete(region)}
@@ -117,6 +143,25 @@ export function DeliveryDireccionScreen({ navigation }: Props) {
           </View>
           {resolving ? <ActivityIndicator size="small" color={colors.limeStrong} /> : null}
         </View>
+        {saving ? (
+          <View style={styles.labels} accessibilityRole="radiogroup">
+            {LABELS.map((item, index) => {
+              const on = index === labelIndex;
+              return (
+                <Pressable
+                  key={item.label}
+                  onPress={() => setLabelIndex(index)}
+                  style={[styles.labelChip, { borderColor: on ? colors.limeStrong : colors.line, backgroundColor: on ? colors.limeSoft : colors.card }]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on }}
+                >
+                  <Ionicons name={item.icon} size={15} color={on ? colors.olive : colors.muted} />
+                  <Text style={[styles.labelText, { color: on ? colors.olive : colors.ink }]}>{item.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : null}
         <Pressable
           onPress={confirm}
           disabled={resolving}
@@ -124,7 +169,7 @@ export function DeliveryDireccionScreen({ navigation }: Props) {
           accessibilityRole="button"
           accessibilityLabel={`Confirmar ubicación: ${place.title}`}
         >
-          <Text style={[styles.confirmText, { color: colors.ink }]}>Confirmar ubicación</Text>
+          <Text style={[styles.confirmText, { color: colors.onLime }]}>{saving ? 'Guardar dirección' : 'Confirmar ubicación'}</Text>
         </Pressable>
       </View>
     </View>
@@ -238,6 +283,23 @@ const styles = StyleSheet.create({
   placeDetail: {
     fontFamily: FontFamily.regular,
     fontSize: 12,
+  },
+  labels: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  labelChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+  },
+  labelText: {
+    fontFamily: FontFamily.semibold,
+    fontSize: 13,
   },
   confirm: {
     height: 50,

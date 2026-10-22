@@ -73,7 +73,13 @@ export function DeliveryInicioScreen() {
         ))}
       </Reanimated.ScrollView>
 
-      <HomeHeader topInset={insets.top} scrollY={scrollY} onAvatarPress={() => setDrawerOpen(true)} />
+      <HomeHeader
+        topInset={insets.top}
+        scrollY={scrollY}
+        onAvatarPress={() => setDrawerOpen(true)}
+        onAddressPress={() => navigation.navigate('DeliveryDirecciones')}
+        onBellPress={() => navigation.navigate('DeliveryNotificaciones')}
+      />
       <DeliveryDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </View>
   );
