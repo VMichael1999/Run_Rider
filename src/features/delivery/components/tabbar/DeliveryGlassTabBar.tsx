@@ -17,6 +17,7 @@ import Reanimated, {
   runOnJS,
   useAnimatedKeyboard,
   useAnimatedStyle,
+  useAnimatedReaction,
   useDerivedValue,
   useReducedMotion,
   useSharedValue,
@@ -159,6 +160,14 @@ export function DeliveryGlassTabBar({
   // 0 abierta; 1 encogida a un círculo (por scroll o por la búsqueda).
   const collapse = useDerivedValue(() =>
     Math.max(minimized.value, search.value),
+  );
+  // El círculo solo recibe toques cuando la barra está encogida; si no, taparía la primera pestaña.
+  const [collapsedTouchable, setCollapsedTouchable] = React.useState(false);
+  useAnimatedReaction(
+    () => collapse.value > 0.5,
+    (now, before) => {
+      if (now !== before) runOnJS(setCollapsedTouchable)(now);
+    },
   );
 
   const rowStyle = useAnimatedStyle(() => ({
@@ -345,7 +354,7 @@ export function DeliveryGlassTabBar({
           {/* Minimizada o buscando: un círculo con el ícono de la pestaña; al tocarlo, abre o vuelve. */}
           <Reanimated.View
             style={[styles.collapsed, collapsedIconStyle]}
-            pointerEvents="box-none"
+            pointerEvents={collapsedTouchable ? "box-none" : "none"}
           >
             <Pressable
               onPress={onCollapsedPress}
@@ -486,7 +495,7 @@ function TabIcon({ icons, focused, badge }: TabIconProps) {
             color={colors.lime}
             style={styles.iconUnder}
           />
-          <Ionicons name={icons.outline} size={ICON} color={colors.ink} />
+          <Ionicons name={icons.outline} size={ICON} color={colors.onLime} />
         </>
       ) : (
         <Ionicons name={icons.outline} size={ICON} color={colors.muted} />
@@ -495,7 +504,7 @@ function TabIcon({ icons, focused, badge }: TabIconProps) {
         <View
           style={[
             styles.badge,
-            { backgroundColor: colors.ink, borderColor: colors.card },
+            { backgroundColor: colors.inkFill, borderColor: colors.card },
           ]}
         >
           <Text style={[styles.badgeText, { color: colors.lime }]}>

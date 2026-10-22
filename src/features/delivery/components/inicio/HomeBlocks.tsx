@@ -19,7 +19,7 @@ export function HeroBanner() {
         ry={1.2}
         stops={[
           { color: colors.heroGlow, offset: 0 },
-          { color: colors.ink, offset: 0.7 },
+          { color: colors.heroBase, offset: 0.7 },
         ]}
       />
       <View style={styles.heroText}>
@@ -28,7 +28,7 @@ export function HeroBanner() {
         </Text>
         <Text style={[styles.heroSubtitle, { color: colors.onDark }]}>En todos tus pedidos esta semana</Text>
         <View style={[styles.heroCta, { backgroundColor: colors.lime }]}>
-          <Text style={[styles.heroCtaText, { color: colors.ink }]}>Pide ya</Text>
+          <Text style={[styles.heroCtaText, { color: colors.onLime }]}>Pide ya</Text>
         </View>
       </View>
       <Image source={FOOD_IMAGES.moto} style={styles.heroImage} />
@@ -86,7 +86,7 @@ export function CategoryStrip({ categories, selectedId, onSelect }: CategoryStri
             <View style={styles.categoryIcon}>
               <Image source={category.image} style={styles.categoryImage} />
             </View>
-            <Text style={[styles.categoryLabel, { color: colors.ink }, selected && styles.categoryLabelOn]}>
+            <Text style={[styles.categoryLabel, { color: selected ? colors.onLime : colors.ink }, selected && styles.categoryLabelOn]}>
               {category.label}
             </Text>
           </Pressable>
@@ -108,7 +108,7 @@ export function DealStrip({ deals }: { deals: Deal[] }) {
             type="linear"
             angle={120}
             stops={[
-              { color: colors.ink, offset: 0.45 },
+              { color: colors.heroBase, offset: 0.45 },
               { color: colors.dealGlow, offset: 1 },
             ]}
           />
@@ -124,7 +124,7 @@ export function DealStrip({ deals }: { deals: Deal[] }) {
                 accessibilityRole="button"
                 accessibilityLabel={`Aplicar código ${deal.code}`}
               >
-                <Text style={[styles.dealClaimText, { color: colors.ink }]}>Aplicar</Text>
+                <Text style={[styles.dealClaimText, { color: colors.onLime }]}>Aplicar</Text>
               </Pressable>
             </View>
           </View>

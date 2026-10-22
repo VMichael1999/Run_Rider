@@ -7,6 +7,7 @@ import Reanimated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-
 import { FontFamily } from '@theme/fonts';
 import { DeliveryColors } from '@theme/colors';
 import type { CartItem } from '@store/useCartStore';
+import { useDeliveryMapStyle } from '../../hooks/useDeliveryMapStyle';
 import { useDeliveryColors } from '../../theme';
 import { StoreLogo } from '../StoreLogo';
 import { formatSoles } from '../../utils/money';
@@ -85,6 +86,7 @@ interface MiniMapProps {
 /** Mapa pequeño (.mprev): 104 de alto, radio 12, sin gestos. */
 export function MiniMap({ coordinate, store }: MiniMapProps) {
   const colors = useDeliveryColors();
+  const mapStyle = useDeliveryMapStyle();
   // Región fija: el mapa no se mueve con gestos y cambia de punto al pasar de delivery a recojo.
   const region = React.useMemo(() => ({ ...coordinate, latitudeDelta: 0.006, longitudeDelta: 0.006 }), [coordinate]);
 
@@ -92,6 +94,7 @@ export function MiniMap({ coordinate, store }: MiniMapProps) {
     <View style={styles.map} pointerEvents="none">
       <MapView
         provider={PROVIDER_GOOGLE}
+        {...mapStyle}
         style={StyleSheet.absoluteFill}
         region={region}
         scrollEnabled={false}
@@ -138,7 +141,7 @@ export function CheckoutItem({ item }: { item: CartItem }) {
     <View style={styles.item} accessible accessibilityLabel={`${item.quantity} ${item.name}, ${item.options}, ${formatSoles(lineTotal(item))}`}>
       <View style={[styles.thumb, { backgroundColor: thumb?.tint ?? colors.soft }]}>
         {thumb ? <Image source={thumb.image} style={styles.thumbImage} /> : null}
-        <View style={[styles.quantity, { backgroundColor: colors.ink }]}>
+        <View style={[styles.quantity, { backgroundColor: colors.inkFill }]}>
           <Text style={[styles.quantityText, { color: colors.onDark }]}>{item.quantity}×</Text>
         </View>
       </View>
@@ -192,7 +195,7 @@ export function CouponRow({ title, subtitle, actionLabel, onPress, store }: Coup
         <Text style={[styles.couponTitle, { color: colors.ink }]}>{title}</Text>
         <Text style={[styles.couponSubtitle, { color: colors.muted }]}>{subtitle}</Text>
       </View>
-      <View style={[styles.couponAction, { backgroundColor: colors.ink }]}>
+      <View style={[styles.couponAction, { backgroundColor: colors.inkFill }]}>
         <Text style={[styles.couponActionText, { color: colors.lime }]}>{actionLabel}</Text>
       </View>
     </Pressable>

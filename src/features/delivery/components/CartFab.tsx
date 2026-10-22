@@ -18,13 +18,13 @@ export function CartFab({ onPress }: CartFabProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={[styles.fab, { backgroundColor: colors.ink }]}
+      style={[styles.fab, { backgroundColor: colors.inkFill }]}
       accessibilityRole="button"
       accessibilityLabel={`Ver carrito, ${count} productos`}
     >
       <Ionicons name="bag-outline" size={24} color={colors.lime} />
       {count > 0 ? (
-        <View style={[styles.badge, { backgroundColor: colors.ink, borderColor: colors.card }]}>
+        <View style={[styles.badge, { backgroundColor: colors.inkFill, borderColor: colors.card }]}>
           <Text style={[styles.badgeText, { color: colors.lime }]}>{count}</Text>
         </View>
       ) : null}

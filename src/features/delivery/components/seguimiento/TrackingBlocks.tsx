@@ -134,14 +134,14 @@ export function RiderCard({ showVehicle = true, onChat, onCall }: RiderCardProps
             accessibilityRole="button"
             accessibilityLabel={`Llamar a ${COURIER.firstName}`}
           >
-            <Ionicons name="call" size={16} color={colors.ink} />
+            <Ionicons name="call" size={16} color={colors.onLime} />
           </Pressable>
         </View>
         {showVehicle ? (
           <View style={[styles.vehicle, { backgroundColor: colors.soft }]}>
             <Ionicons name="car-outline" size={16} color={colors.muted} />
             <Text style={[styles.vehicleText, { color: colors.muted }]}>{COURIER.vehicle}</Text>
-            <View style={[styles.plate, { backgroundColor: colors.ink }]}>
+            <View style={[styles.plate, { backgroundColor: colors.inkFill }]}>
               <Text style={[styles.plateText, { color: colors.onDark }]}>{COURIER.plate}</Text>
             </View>
           </View>
@@ -291,7 +291,7 @@ export function RatingCard({ rating, onRate, onHome }: RatingCardProps) {
         entering={reduceMotion ? FadeIn.duration(200) : ZoomIn.springify().damping(12)}
         style={[styles.check, { backgroundColor: colors.lime }]}
       >
-        <Ionicons name="checkmark" size={26} color={colors.ink} />
+        <Ionicons name="checkmark" size={26} color={colors.onLime} />
       </Reanimated.View>
       <Text style={[styles.ratingTitle, { color: colors.ink }]}>Tu pedido llegó</Text>
       <Text style={[styles.subtitle, { color: colors.muted }]}>¿Qué tal estuvo {COURIER.firstName}?</Text>
@@ -303,7 +303,7 @@ export function RatingCard({ rating, onRate, onHome }: RatingCardProps) {
         ))}
       </View>
       <Pressable onPress={onHome} style={[styles.homeButton, { backgroundColor: colors.lime }]} accessibilityRole="button">
-        <Text style={[styles.homeText, { color: colors.ink }]}>Volver al inicio</Text>
+        <Text style={[styles.homeText, { color: colors.onLime }]}>Volver al inicio</Text>
       </Pressable>
     </Card>
   );

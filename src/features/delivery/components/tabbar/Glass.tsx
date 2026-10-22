@@ -1,7 +1,8 @@
 import React from 'react';
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { DeliveryColors } from '@theme/colors';
+import { useThemeStore } from '@store/useThemeStore';
+import { useDeliveryColors } from '../../theme';
 import { LiquidGlassView, isLiquidGlassAvailable } from '@modules/liquid-glass/src';
 
 /** Liquid Glass real (iOS 26 o más); se consulta una vez. */
@@ -23,6 +24,9 @@ interface GlassProps {
  * borde); en iOS anteriores, desenfoque con velo blanco; en Android, blanco translúcido.
  */
 export function Glass({ style, children, radius, variant = 'regular', interactive = false }: GlassProps) {
+  const isDark = useThemeStore((s) => s.isDark);
+  const colors = useDeliveryColors();
+
   if (LIQUID_GLASS) {
     return (
       <View style={[{ borderRadius: radius }, style]}>
@@ -31,7 +35,7 @@ export function Glass({ style, children, radius, variant = 'regular', interactiv
           glassStyle={variant}
           cornerRadius={radius}
           interactive={interactive}
-          colorScheme="light"
+          colorScheme={isDark ? 'dark' : 'light'}
           pointerEvents="none"
         />
         {children}
@@ -40,14 +44,16 @@ export function Glass({ style, children, radius, variant = 'regular', interactiv
   }
 
   return (
-    <View style={[styles.wrap, { borderRadius: radius }, style]}>
+    <View style={[styles.wrap, { borderRadius: radius, borderColor: colors.glassEdge }, style]}>
       <BlurView
         style={StyleSheet.absoluteFill}
         // En iOS, el material del sistema; en Android, BlurView no desenfoca sin el método experimental.
-        tint={Platform.OS === 'ios' ? 'systemChromeMaterialLight' : 'light'}
+        tint={Platform.OS === 'ios' ? (isDark ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight') : isDark ? 'dark' : 'light'}
         intensity={Platform.OS === 'ios' ? 80 : 100}
       />
-      <View style={[StyleSheet.absoluteFill, styles.veil]} />
+      <View
+        style={[StyleSheet.absoluteFill, { backgroundColor: Platform.OS === 'ios' ? colors.glassVeil : colors.glassFallback }]}
+      />
       {children}
     </View>
   );
@@ -57,9 +63,5 @@ const styles = StyleSheet.create({
   wrap: {
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: DeliveryColors.light.glassEdge,
-  },
-  veil: {
-    backgroundColor: Platform.OS === 'ios' ? DeliveryColors.light.glassVeil : DeliveryColors.light.glassFallback,
   },
 });
