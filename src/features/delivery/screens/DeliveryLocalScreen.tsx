@@ -18,6 +18,7 @@ import { FontFamily } from '@theme/fonts';
 import { DeliveryColors } from '@theme/colors';
 import { useDeliveryColors } from '../theme';
 import { useStatusBarStyle } from '../hooks/useStatusBarStyle';
+import { useFavoritesStore } from '../store/useFavoritesStore';
 import { GradientFill } from '../components/GradientFill';
 import { CartFab } from '../components/CartFab';
 import { DeliveryToast, useToast } from '../components/DeliveryToast';
@@ -40,7 +41,8 @@ export function DeliveryLocalScreen({ route, navigation }: Props) {
   const restaurant = RESTAURANTS[route.params.restaurantId];
   const details = RESTAURANT_DETAILS[route.params.restaurantId];
   const scrollY = useSharedValue(0);
-  const [favorite, setFavorite] = React.useState(false);
+  const favorite = useFavoritesStore((s) => s.restaurantIds.includes(route.params.restaurantId));
+  const toggleFavorite = useFavoritesStore((s) => s.toggleRestaurant);
   const [claimedIds, setClaimedIds] = React.useState<string[]>([]);
   const { toast, show } = useToast();
 
@@ -153,7 +155,7 @@ export function DeliveryLocalScreen({ route, navigation }: Props) {
         range={[collapseStart, collapseEnd]}
         favorite={favorite}
         onBack={() => navigation.goBack()}
-        onToggleFavorite={() => setFavorite((value) => !value)}
+        onToggleFavorite={() => toggleFavorite(route.params.restaurantId)}
       />
 
       <DeliveryToast toast={toast} bottom={96} />
