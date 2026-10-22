@@ -70,7 +70,7 @@ export function CartRow({ item, onToggle, onChangeQuantity, onRemove }: CartRowP
           accessibilityState={{ checked: item.selected }}
           accessibilityLabel={`Pagar ${item.name}`}
         >
-          {item.selected ? <Ionicons name="checkmark" size={13} color={colors.ink} /> : null}
+          {item.selected ? <Ionicons name="checkmark" size={13} color={colors.onLime} /> : null}
         </Pressable>
         <View style={[styles.thumb, { backgroundColor: thumb?.tint ?? colors.soft }]}>
           {thumb ? <Image source={thumb.image} style={styles.thumbImage} /> : null}

@@ -122,7 +122,7 @@ export function VoucherStrip({ vouchers, claimedIds, onClaim }: VoucherStripProp
               <Pressable
                 onPress={() => onClaim(voucher)}
                 disabled={claimed}
-                style={[styles.claim, { backgroundColor: claimed ? colors.soft : colors.ink }]}
+                style={[styles.claim, { backgroundColor: claimed ? colors.soft : colors.inkFill }]}
                 accessibilityRole="button"
                 accessibilityState={{ disabled: claimed }}
                 accessibilityLabel={claimed ? `${voucher.title} reclamado` : `Reclamar ${voucher.title}`}
@@ -177,7 +177,7 @@ export function ProductCard({ product, onPress, onAdd }: ProductCardProps) {
         accessibilityRole="button"
         accessibilityLabel={`Agregar ${product.name}`}
       >
-        <Ionicons name="add" size={16} color={colors.ink} />
+        <Ionicons name="add" size={16} color={colors.onLime} />
       </Pressable>
     </Pressable>
   );
@@ -219,7 +219,7 @@ export function MenuList({ products, onPress, onAdd }: MenuListProps) {
               accessibilityRole="button"
               accessibilityLabel={`Agregar ${product.name}`}
             >
-              <Ionicons name="add" size={16} color={colors.ink} />
+              <Ionicons name="add" size={16} color={colors.onLime} />
             </Pressable>
           </View>
         </Pressable>

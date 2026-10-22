@@ -52,12 +52,12 @@ export function DeliveryToast({ toast, bottom, variant = 'card' }: DeliveryToast
           key={toast.id}
           entering={FadeInDown.duration(220)}
           exiting={FadeOutDown.duration(200)}
-          style={[styles.low, { backgroundColor: colors.ink }]}
+          style={[styles.low, { backgroundColor: colors.inkFill }]}
           accessibilityRole="alert"
           accessibilityLiveRegion="polite"
         >
           <View style={[styles.lowIcon, { backgroundColor: colors.lime }]}>
-            <Ionicons name={toast.icon} size={14} color={colors.ink} />
+            <Ionicons name={toast.icon} size={14} color={colors.onLime} />
           </View>
           <Text style={[styles.lowTitle, { color: colors.onDark }]} numberOfLines={1}>
             {toast.title}
@@ -72,12 +72,12 @@ export function DeliveryToast({ toast, bottom, variant = 'card' }: DeliveryToast
       key={toast.id}
       entering={FadeInDown.duration(220)}
       exiting={FadeOutDown.duration(200)}
-      style={[styles.toast, { backgroundColor: colors.ink, bottom }]}
+      style={[styles.toast, { backgroundColor: colors.inkFill, bottom }]}
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
     >
       <View style={[styles.icon, { backgroundColor: colors.lime }]}>
-        <Ionicons name={toast.icon} size={18} color={colors.ink} />
+        <Ionicons name={toast.icon} size={18} color={colors.onLime} />
       </View>
       <View style={styles.text}>
         <Text style={[styles.title, { color: colors.onDark }]}>{toast.title}</Text>

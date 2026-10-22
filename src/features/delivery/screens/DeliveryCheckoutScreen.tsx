@@ -12,7 +12,7 @@ import { usePaymentSelectionStore } from '@store/usePaymentSelectionStore';
 import { getPaymentMethodById } from '@shared/data/paymentMethods';
 import { useDeliveryColors } from '../theme';
 import { useStatusBarStyle } from '../hooks/useStatusBarStyle';
-import { useCheckoutStore } from '../store/useCheckoutStore';
+import { useCheckoutAddress, useCheckoutStore } from '../store/useCheckoutStore';
 import { useActiveOrderStore } from '../store/useActiveOrderStore';
 import { computeCharges } from '../utils/cobro';
 import { formatSoles } from '../utils/money';
@@ -57,7 +57,7 @@ export function DeliveryCheckoutScreen({ navigation }: Props) {
   const setFulfillment = useCheckoutStore((s) => s.setFulfillment);
   const couponId = useCheckoutStore((s) => s.couponId);
   const setCoupon = useCheckoutStore((s) => s.setCoupon);
-  const address = useCheckoutStore((s) => s.address);
+  const address = useCheckoutAddress();
   const [couponsOpen, setCouponsOpen] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [sending, setSending] = React.useState(false);
@@ -215,7 +215,7 @@ export function DeliveryCheckoutScreen({ navigation }: Props) {
           accessibilityRole="button"
           accessibilityLabel={`Hacer pedido por ${formatSoles(charges.total)}`}
         >
-          {sending ? <Spinner /> : <Text style={[styles.orderText, { color: colors.ink }]}>Hacer pedido</Text>}
+          {sending ? <Spinner /> : <Text style={[styles.orderText, { color: colors.onLime }]}>Hacer pedido</Text>}
         </Pressable>
       </View>
 

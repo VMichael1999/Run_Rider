@@ -101,7 +101,7 @@ export function DeliveryCarritoScreen() {
                 : { backgroundColor: colors.card, borderColor: colors.faint },
             ]}
           >
-            {allSelected ? <Ionicons name="checkmark" size={13} color={colors.ink} /> : null}
+            {allSelected ? <Ionicons name="checkmark" size={13} color={colors.onLime} /> : null}
           </View>
           <Text style={[styles.allText, { color: colors.ink }]}>Todo</Text>
         </Pressable>
@@ -116,7 +116,7 @@ export function DeliveryCarritoScreen() {
           accessibilityRole="button"
           accessibilityLabel={`Pagar ${charges.count} productos, ${formatSoles(charges.total)}`}
         >
-          <Text style={[styles.payText, { color: colors.ink }]}>Pagar ({charges.count})</Text>
+          <Text style={[styles.payText, { color: colors.onLime }]}>Pagar ({charges.count})</Text>
         </Pressable>
       </View>
     </View>

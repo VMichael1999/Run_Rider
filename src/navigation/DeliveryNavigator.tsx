@@ -9,13 +9,17 @@ import { cartCount, useCartStore } from "@store/useCartStore";
 import { DeliveryCargaScreen } from "@features/delivery/screens/DeliveryCargaScreen";
 import { DeliveryInicioScreen } from "@features/delivery/screens/DeliveryInicioScreen";
 import { DeliveryCarritoScreen } from "@features/delivery/screens/DeliveryCarritoScreen";
-import { DeliveryProximamenteScreen } from "@features/delivery/screens/DeliveryProximamenteScreen";
 import { DeliveryLocalScreen } from "@features/delivery/screens/DeliveryLocalScreen";
 import { DeliveryProductoScreen } from "@features/delivery/screens/DeliveryProductoScreen";
 import { DeliveryCheckoutScreen } from "@features/delivery/screens/DeliveryCheckoutScreen";
 import { DeliveryDireccionScreen } from "@features/delivery/screens/DeliveryDireccionScreen";
 import { DeliverySeguimientoScreen } from "@features/delivery/screens/DeliverySeguimientoScreen";
-import { DeliveryMenuPlaceholderScreen } from "@features/delivery/screens/DeliveryMenuPlaceholderScreen";
+import { DeliveryPedidosScreen } from "@features/delivery/screens/DeliveryPedidosScreen";
+import { DeliveryCuponesScreen } from "@features/delivery/screens/DeliveryCuponesScreen";
+import { DeliveryDireccionesScreen } from "@features/delivery/screens/DeliveryDireccionesScreen";
+import { DeliveryFacturacionScreen } from "@features/delivery/screens/DeliveryFacturacionScreen";
+import { DeliveryNotificacionesScreen } from "@features/delivery/screens/DeliveryNotificacionesScreen";
+import { DeliveryFavoritosScreen } from "@features/delivery/screens/DeliveryFavoritosScreen";
 import { PerfilScreen } from "@features/cliente/perfil";
 import { MetodosPagoScreen } from "@features/cliente/metodos-pago";
 import { ConfiguracionScreen } from "@features/configuracion/ConfiguracionScreen";
@@ -63,8 +67,7 @@ function DeliveryTabs() {
           options={{ title: "Inicio" }}
         />
         <Tab.Screen
-          name="DeliveryFavoritos"
-          component={DeliveryProximamenteScreen}
+          name="DeliveryFavoritos" component={DeliveryFavoritosScreen}
           options={{ title: "Favoritos" }}
         />
         <Tab.Screen
@@ -124,24 +127,19 @@ export function DeliveryNavigator() {
         options={{ gestureEnabled: false }}
       />
       <Stack.Screen
-        name="DeliveryPedidos"
-        component={DeliveryMenuPlaceholderScreen}
+        name="DeliveryPedidos" component={DeliveryPedidosScreen}
       />
       <Stack.Screen
-        name="DeliveryCupones"
-        component={DeliveryMenuPlaceholderScreen}
+        name="DeliveryCupones" component={DeliveryCuponesScreen}
       />
       <Stack.Screen
-        name="DeliveryDirecciones"
-        component={DeliveryMenuPlaceholderScreen}
+        name="DeliveryDirecciones" component={DeliveryDireccionesScreen}
       />
       <Stack.Screen
-        name="DeliveryFacturacion"
-        component={DeliveryMenuPlaceholderScreen}
+        name="DeliveryFacturacion" component={DeliveryFacturacionScreen}
       />
       <Stack.Screen
-        name="DeliveryNotificaciones"
-        component={DeliveryMenuPlaceholderScreen}
+        name="DeliveryNotificaciones" component={DeliveryNotificacionesScreen}
       />
       {/* Pantallas de la cuenta que se comparten con viajes. */}
       <Stack.Screen name="Perfil" component={DeliveryPerfil} />
