@@ -15,7 +15,6 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Reanimated, {
   interpolate,
   runOnJS,
-  type SharedValue,
   useAnimatedKeyboard,
   useAnimatedStyle,
   useDerivedValue,
@@ -31,6 +30,8 @@ import { useDeliveryColors } from "../../theme";
 import { useDeliverySearchStore } from "../../store/useDeliverySearchStore";
 import { useOrderPill } from "../../hooks/useOrderPill";
 import { Glass } from "./Glass";
+import { LiquidLens } from "./LiquidLens";
+import { makeImageFromView, type SkImage } from "@shopify/react-native-skia";
 import { OrderAccessory } from "./OrderAccessory";
 import {
   ACCESSORY_GAP,
@@ -58,8 +59,8 @@ const GAP = 8;
 const ICON = 22;
 /** Al levantarse, la selección crece 16 % (UIKit). */
 const LENS_GROWTH = 0.16;
-/** Cuánto se agranda una pestaña justo debajo del lente. */
-const LENS_MAGNIFY = 0.14;
+/** El lienzo del lente sobresale de la barra (el lente levantado es más grande). */
+const LENS_MARGIN = 10;
 const LENS_SPRING = { damping: 16, stiffness: 260, mass: 0.8 };
 
 /**
@@ -129,6 +130,23 @@ export function DeliveryGlassTabBar({
   const lensX = useSharedValue(0);
   const minLensX = PADDING + itemWidth / 2;
   const maxLensX = capsuleWidth - PADDING - itemWidth / 2;
+  // Captura de los íconos que el lente dibuja aumentados; se rehace cuando cambian (pestaña, contador).
+  const iconsRef = React.useRef<View>(null);
+  const [snapshot, setSnapshot] = React.useState<SkImage | null>(null);
+  const captureIcons = React.useCallback(() => {
+    if (!iconsRef.current) return;
+    makeImageFromView(iconsRef as React.RefObject<View>)
+      .then((image) => setSnapshot(image))
+      .catch(() => undefined);
+  }, []);
+  const badgeKey = tabRoutes
+    .map((route) => descriptors[route.key].options.tabBarBadge ?? "")
+    .join("|");
+  React.useEffect(() => {
+    const timer = setTimeout(captureIcons, 250);
+    return () => clearTimeout(timer);
+  }, [captureIcons, focusedRoute.name, badgeKey, capsuleWidth]);
+
   /** Centro de la selección: el del lente mientras se arrastra; si no, el de la pestaña elegida. */
   const selectionX = useDerivedValue(() =>
     interpolate(
@@ -161,7 +179,6 @@ export function DeliveryGlassTabBar({
     ],
   }));
   const restPillStyle = useAnimatedStyle(() => ({ opacity: 1 - lift.value }));
-  const lensStyle = useAnimatedStyle(() => ({ opacity: lift.value }));
   // La barra se hincha un poco bajo el dedo, como en iOS.
   const swellStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 1 + 0.015 * lift.value }],
@@ -219,7 +236,8 @@ export function DeliveryGlassTabBar({
       // La selección sale desde donde quedó el lente y se asienta en la pestaña.
       indicator.value = (lensX.value - minLensX) / itemWidth;
       indicator.value = withSpring(index, BAR_SPRING);
-      lift.value = withSpring(0, LENS_SPRING);
+      // Se apaga rápido: la captura del lente es de antes de soltar y no debe quedar sobre la pestaña nueva.
+      lift.value = withTiming(0, { duration: 140 });
       runOnJS(selectIndex)(index);
     });
 
@@ -285,49 +303,42 @@ export function DeliveryGlassTabBar({
                     restPillStyle,
                   ]}
                 />
-                <Reanimated.View style={[StyleSheet.absoluteFill, lensStyle]}>
-                  <Glass
-                    style={StyleSheet.absoluteFill}
-                    radius={(BAR_HEIGHT - PADDING * 2) / 2}
-                    variant="clear"
-                  />
-                </Reanimated.View>
               </Reanimated.View>
-              {tabRoutes.map((route, index) => {
-                const focused = route.name === focusedRoute.name;
-                const { options } = descriptors[route.key];
-                const label = options.title ?? route.name;
-                const icons = TAB_ICONS[route.name as TabName] ?? {
-                  outline: "ellipse-outline",
-                  filled: "ellipse",
-                };
-                const badge = options.tabBarBadge;
-                return (
-                  <TabItem
-                    key={route.key}
-                    center={PADDING + itemWidth / 2 + index * itemWidth}
-                    width={itemWidth}
-                    lensX={lensX}
-                    lift={lift}
-                    onAccessibilityTap={() => selectIndex(index)}
-                    accessibilityLabel={
-                      badge ? `${label}, ${badge} productos` : label
-                    }
-                    focused={focused}
-                  >
-                    <TabIcon icons={icons} focused={focused} badge={badge} />
-                    <Text
-                      style={[
-                        styles.label,
-                        { color: focused ? colors.ink : colors.muted },
-                        focused && styles.labelOn,
-                      ]}
+              {/* Capa de íconos y textos: el lente de Skia la captura y la dibuja aumentada. */}
+              <View ref={iconsRef} collapsable={false} style={styles.icons}>
+                {tabRoutes.map((route, index) => {
+                  const focused = route.name === focusedRoute.name;
+                  const { options } = descriptors[route.key];
+                  const label = options.title ?? route.name;
+                  const icons = TAB_ICONS[route.name as TabName] ?? {
+                    outline: "ellipse-outline",
+                    filled: "ellipse",
+                  };
+                  const badge = options.tabBarBadge;
+                  return (
+                    <TabItem
+                      key={route.key}
+                      width={itemWidth}
+                      onAccessibilityTap={() => selectIndex(index)}
+                      accessibilityLabel={
+                        badge ? `${label}, ${badge} productos` : label
+                      }
+                      focused={focused}
                     >
-                      {label}
-                    </Text>
-                  </TabItem>
-                );
-              })}
+                      <TabIcon icons={icons} focused={focused} badge={badge} />
+                      <Text
+                        style={[
+                          styles.label,
+                          { color: focused ? colors.ink : colors.muted },
+                          focused && styles.labelOn,
+                        ]}
+                      >
+                        {label}
+                      </Text>
+                    </TabItem>
+                  );
+                })}
+              </View>
             </Reanimated.View>
           </GestureDetector>
 
@@ -350,6 +361,20 @@ export function DeliveryGlassTabBar({
             </Pressable>
           </Reanimated.View>
         </Reanimated.View>
+
+        {searching ? null : (
+          <LiquidLens
+            snapshot={snapshot}
+            barWidth={capsuleWidth}
+            barHeight={BAR_HEIGHT}
+            margin={LENS_MARGIN}
+            lensX={selectionX}
+            lift={lift}
+            lensWidth={itemWidth}
+            lensHeight={BAR_HEIGHT - PADDING * 2}
+            growth={LENS_GROWTH}
+          />
+        )}
 
         <Reanimated.View style={[styles.search, searchStyle]}>
           <Glass style={StyleSheet.absoluteFill} radius={BAR_HEIGHT / 2} />
@@ -413,37 +438,24 @@ export function DeliveryGlassTabBar({
 }
 
 interface TabItemProps {
-  center: number;
   width: number;
-  lensX: SharedValue<number>;
-  lift: SharedValue<number>;
   focused: boolean;
   accessibilityLabel: string;
   onAccessibilityTap: () => void;
   children: React.ReactNode;
 }
 
-/** Pestaña: se agranda cuando el lente pasa por encima, como si se viera a través del vidrio. */
+/** Pestaña. Los toques los maneja el gesto del lente; aquí queda la accesibilidad. */
 function TabItem({
-  center,
   width,
-  lensX,
-  lift,
   focused,
   accessibilityLabel,
   onAccessibilityTap,
   children,
 }: TabItemProps) {
-  const style = useAnimatedStyle(() => {
-    const closeness = Math.max(0, 1 - Math.abs(center - lensX.value) / width);
-    return {
-      transform: [{ scale: 1 + LENS_MAGNIFY * lift.value * closeness }],
-    };
-  });
-
   return (
-    <Reanimated.View
-      style={[styles.tab, { width }, style]}
+    <View
+      style={[styles.tab, { width }]}
       accessible
       accessibilityRole="tab"
       accessibilityState={{ selected: focused }}
@@ -451,7 +463,7 @@ function TabItem({
       onAccessibilityTap={onAccessibilityTap}
     >
       {children}
-    </Reanimated.View>
+    </View>
   );
 }
 
@@ -518,6 +530,12 @@ const styles = StyleSheet.create({
     top: PADDING,
     bottom: PADDING,
     left: 0,
+  },
+  icons: {
+    ...StyleSheet.absoluteFillObject,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: PADDING,
   },
   pill: {
     borderRadius: (BAR_HEIGHT - PADDING * 2) / 2,
