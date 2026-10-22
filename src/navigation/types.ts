@@ -65,6 +65,8 @@ export type DeliveryTabParamList = {
   DeliveryInicio: undefined;
   DeliveryFavoritos: undefined;
   DeliveryCarrito: undefined;
+  /** Pestaña de búsqueda: va en su propio círculo al final de la barra. */
+  DeliveryBuscar: undefined;
 };
 
 // Conductor bottom tabs

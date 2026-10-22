@@ -1,41 +1,41 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { FontFamily } from '@theme/fonts';
-import { DeliveryShadow, useDeliveryColors } from '../../theme';
+import { useDeliveryColors } from '../../theme';
 import { StoreLogo } from '../StoreLogo';
 import { Avatar } from '../Avatar';
-import { ACTIVE_ORDER, COURIER, DELIVERY_ADDRESS, RESTAURANTS, type ActiveOrderStatus } from '../../data/mock';
+import type { OrderPillData } from '../../hooks/useOrderPill';
+import { COURIER, DELIVERY_ADDRESS, RESTAURANTS, ACTIVE_ORDER } from '../../data/mock';
 
-interface OrderPillProps {
-  status: ActiveOrderStatus;
-  minutes: number;
-  arrivesAt: string;
-  bottom: number;
+interface OrderAccessoryProps {
+  pill: OrderPillData;
   onPress?: () => void;
 }
 
-/** Aviso flotante del pedido en curso (.opill). Con el repartidor en camino, muestra su avatar. */
-export function OrderPill({ status, minutes, arrivesAt, bottom, onPress }: OrderPillProps) {
+/** Contenido del accessory: el pedido en curso en 48 pt (logo o repartidor, estado y minutos). */
+export function OrderAccessory({ pill, onPress }: OrderAccessoryProps) {
   const colors = useDeliveryColors();
   const restaurant = RESTAURANTS[ACTIVE_ORDER.restaurantId];
-  const onTheWay = status === 'en-camino';
+  const onTheWay = pill.status === 'en-camino';
   const title = onTheWay ? `${COURIER.firstName} está en camino` : 'Preparando tu pedido';
   const subtitle = onTheWay
-    ? `A ${DELIVERY_ADDRESS.label} · Llega ${arrivesAt}`
-    : `${restaurant.name.split(' – ')[0]} · Llega ${arrivesAt}`;
+    ? `A ${DELIVERY_ADDRESS.label} · Llega ${pill.arrivesAt}`
+    : `${restaurant.name.split(' – ')[0]} · Llega ${pill.arrivesAt}`;
 
   return (
     <Pressable
       onPress={onPress}
       disabled={!onPress}
-      style={[styles.pill, { backgroundColor: colors.card, bottom }, DeliveryShadow.floating]}
+      style={styles.row}
       accessibilityRole="button"
-      accessibilityLabel={`${title}. ${subtitle}. Faltan ${minutes} minutos`}
+      accessibilityLabel={`${title}. ${subtitle}. Faltan ${pill.minutes} minutos`}
     >
       {onTheWay ? (
-        <Avatar initials={COURIER.initials} variant="sm" />
+        <View style={styles.avatar}>
+          <Avatar initials={COURIER.initials} variant="sm" />
+        </View>
       ) : (
-        <StoreLogo logo={restaurant.logo} size={38} radius={12} fontSize={13} />
+        <StoreLogo logo={restaurant.logo} size={34} radius={17} fontSize={12} />
       )}
       <View style={styles.text}>
         <Text style={[styles.title, { color: colors.ink }]} numberOfLines={1}>
@@ -46,7 +46,7 @@ export function OrderPill({ status, minutes, arrivesAt, bottom, onPress }: Order
         </Text>
       </View>
       <View style={[styles.eta, { backgroundColor: colors.limeSoft }]}>
-        <Text style={[styles.etaNumber, { color: colors.ink }]}>{minutes}</Text>
+        <Text style={[styles.etaText, { color: colors.ink }]}>{pill.minutes}</Text>
         <Text style={[styles.etaUnit, { color: colors.olive }]}>min</Text>
       </View>
     </Pressable>
@@ -54,47 +54,46 @@ export function OrderPill({ status, minutes, arrivesAt, bottom, onPress }: Order
 }
 
 const styles = StyleSheet.create({
-  pill: {
-    position: 'absolute',
-    left: 12,
-    right: 12,
-    zIndex: 6,
-    borderRadius: 18,
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingLeft: 12,
-    paddingRight: 10,
+  row: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    paddingLeft: 7,
+    paddingRight: 7,
+  },
+  avatar: {
+    transform: [{ scale: 0.9 }],
   },
   text: {
     flex: 1,
+    minWidth: 0,
   },
   title: {
     fontFamily: FontFamily.semibold,
-    fontSize: 14,
-    lineHeight: 18.9,
+    fontSize: 13.5,
+    lineHeight: 17,
   },
   subtitle: {
     fontFamily: FontFamily.regular,
-    fontSize: 11.5,
-    lineHeight: 15.5,
+    fontSize: 11,
+    lineHeight: 14,
   },
   eta: {
-    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 2,
+    borderRadius: 17,
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    alignItems: 'center',
+    height: 34,
+    paddingTop: 7,
   },
-  etaNumber: {
+  etaText: {
     fontFamily: FontFamily.bold,
-    fontSize: 17,
-    lineHeight: 18.7,
+    fontSize: 15,
   },
   etaUnit: {
     fontFamily: FontFamily.semibold,
     fontSize: 10,
-    lineHeight: 11,
   },
 });

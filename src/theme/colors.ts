@@ -92,6 +92,11 @@ const DeliveryLight = {
   red: '#C8261B',
   redSoft: '#FBE3E0',
   star: '#E8A317',
+  // Barra de vidrio: velo sobre el desenfoque, borde, fondo sin desenfoque (Android) y pastilla elegida
+  glassVeil: 'rgba(255, 255, 255, 0.55)',
+  glassEdge: 'rgba(255, 255, 255, 0.7)',
+  glassFallback: 'rgba(255, 255, 255, 0.92)',
+  glassSelection: 'rgba(17, 21, 25, 0.07)',
   // Fondo oscurecido de hojas y diálogos (.dim) y aro del indicador de carga (.spin)
   dim: 'rgba(17, 21, 25, 0.45)',
   spinnerTrack: 'rgba(17, 21, 25, 0.2)',

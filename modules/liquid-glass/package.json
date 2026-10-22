@@ -1,0 +1,10 @@
+{
+  "name": "liquid-glass",
+  "version": "0.1.0",
+  "description": "Liquid Glass de iOS 26 (UIGlassEffect) como fondo para React Native, compatible con la arquitectura anterior.",
+  "main": "src/index.ts",
+  "private": true,
+  "license": "MIT",
+  "author": "Michael Valdiviezo",
+  "homepage": "https://github.com/VMichael1999/Run_Driver"
+}
