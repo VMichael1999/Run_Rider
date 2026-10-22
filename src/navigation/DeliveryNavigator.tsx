@@ -2,6 +2,8 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useStatusBarStyle } from "@features/delivery/hooks/useStatusBarStyle";
+import { setStatusBarStyle } from "expo-status-bar";
+import { useThemeStore } from "@store/useThemeStore";
 import type { DeliveryStackParamList, DeliveryTabParamList } from "./types";
 import { cartCount, useCartStore } from "@store/useCartStore";
 import { DeliveryCargaScreen } from "@features/delivery/screens/DeliveryCargaScreen";
@@ -85,6 +87,12 @@ function DeliveryTabs() {
 }
 
 export function DeliveryNavigator() {
+  // Delivery cambia el color de la barra de estado por pantalla; al salir, vuelve al del tema de viajes.
+  React.useEffect(
+    () => () => setStatusBarStyle(useThemeStore.getState().isDark ? 'light' : 'dark', true),
+    [],
+  );
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
