@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FontFamily } from '@theme/fonts';
 import { DeliveryColors } from '@theme/colors';
 import { DeliveryShadow, useDeliveryColors } from '../theme';
+import { useThemeStore } from '@store/useThemeStore';
 import { GradientFill } from './GradientFill';
 import { StoreLogo } from './StoreLogo';
 import type { Restaurant } from '../data/mock';
@@ -16,6 +17,7 @@ interface RestaurantCardProps {
 /** Tarjeta de local para la grilla de 2 columnas (.rc). */
 export function RestaurantCard({ restaurant, onPress }: RestaurantCardProps) {
   const colors = useDeliveryColors();
+  const dark = useThemeStore((s) => s.isDark);
   const distance = `${restaurant.distanceKm.toFixed(1)} km`;
 
   return (
@@ -33,7 +35,8 @@ export function RestaurantCard({ restaurant, onPress }: RestaurantCardProps) {
           rx={0.8}
           ry={0.9}
           stops={[
-            { color: colors.card, offset: 0 },
+            // En oscuro, la foto queda en su tono (sin el centro blanco que se ve gris sobre la tarjeta).
+            { color: dark ? restaurant.tint : colors.card, offset: 0 },
             { color: restaurant.tint, offset: 0.7 },
           ]}
         />
@@ -42,8 +45,8 @@ export function RestaurantCard({ restaurant, onPress }: RestaurantCardProps) {
           <StoreLogo logo={restaurant.logo} size={26} radius={7} fontSize={9.5} />
         </View>
         <View style={[styles.discount, { backgroundColor: colors.lime }]}>
-          <Ionicons name="ticket-outline" size={13} color={colors.ink} />
-          <Text style={[styles.discountText, { color: colors.ink }]}>{restaurant.discountPercent}% DSCTO</Text>
+          <Ionicons name="ticket-outline" size={13} color={colors.onLime} />
+          <Text style={[styles.discountText, { color: colors.onLime }]}>{restaurant.discountPercent}% DSCTO</Text>
         </View>
       </View>
       <Text style={[styles.name, { color: colors.ink }]} numberOfLines={2}>

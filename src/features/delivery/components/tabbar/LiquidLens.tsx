@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Canvas, Fill, ImageShader, Shader, Skia, type SkImage } from '@shopify/react-native-skia';
 import { useDerivedValue, type SharedValue } from 'react-native-reanimated';
+import { useThemeStore } from '@store/useThemeStore';
 
 /**
  * Lente de vidrio que se levanta al presionar la barra (como el de UIKit en iOS 26).
@@ -17,6 +18,8 @@ uniform float margin;      // el lienzo sobresale de la barra este margen por ca
 uniform float pixelRatio;  // puntos a píxeles de la captura
 uniform float lift;        // 0 en reposo, 1 levantado
 uniform float magnify;     // aumento en el centro
+uniform float3 glassTint;  // cuerpo del vidrio: gris claro de día, gris oscuro de noche
+uniform float rainbowBase; // brillo del anillo arcoíris
 
 float sdCapsule(float2 p, float2 h) {
   float r = h.y;
@@ -53,15 +56,15 @@ half4 main(float2 p) {
   half4 content = half4(r.r, g.g, b.b, max(g.a, max(r.a, b.a)));
 
   // Cuerpo del vidrio (gris muy claro) con el contenido encima.
-  half3 glass = half3(0.925, 0.93, 0.935);
+  half3 glass = half3(glassTint);
   half3 color = glass * (1.0 - content.a) + content.rgb;
 
   // Anillo arcoíris del canto: el color gira con el ángulo, como la luz en el borde de un vidrio.
   float angle = atan(local.y, local.x);
   half3 rainbow = half3(
-    0.7 + 0.3 * cos(angle * 2.0 + 0.0),
-    0.7 + 0.3 * cos(angle * 2.0 + 2.094),
-    0.7 + 0.3 * cos(angle * 2.0 + 4.189));
+    rainbowBase + 0.3 * cos(angle * 2.0 + 0.0),
+    rainbowBase + 0.3 * cos(angle * 2.0 + 2.094),
+    rainbowBase + 0.3 * cos(angle * 2.0 + 4.189));
   // Anillo fino: solo el canto, más fuerte justo en el borde.
   float band = smoothstep(0.86, 0.98, rim) * (1.0 - smoothstep(0.985, 1.0, rim) * 0.4);
   color = mix(color, rainbow, band * 0.5);
@@ -96,6 +99,7 @@ interface LiquidLensProps {
 
 export function LiquidLens({ snapshot, barWidth, barHeight, margin, lensX, lift, lensWidth, lensHeight, growth }: LiquidLensProps) {
   const pixelRatio = snapshot ? snapshot.width() / barWidth : 1;
+  const dark = useThemeStore((s) => s.isDark);
 
   const uniforms = useDerivedValue(() => {
     const scale = 1 + growth * lift.value;
@@ -106,6 +110,8 @@ export function LiquidLens({ snapshot, barWidth, barHeight, margin, lensX, lift,
       pixelRatio,
       lift: lift.value,
       magnify: 1.18,
+      glassTint: dark ? [0.16, 0.18, 0.2] : [0.925, 0.93, 0.935],
+      rainbowBase: dark ? 0.55 : 0.7,
     };
   });
 

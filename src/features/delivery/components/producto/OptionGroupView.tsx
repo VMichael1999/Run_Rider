@@ -51,7 +51,7 @@ export function OptionGroupView({ group, selected, active, onToggle }: OptionGro
                     on ? { backgroundColor: colors.lime, borderColor: colors.limeStrong } : { borderColor: colors.faint },
                   ]}
                 >
-                  {on ? <Ionicons name="checkmark" size={13} color={colors.ink} /> : null}
+                  {on ? <Ionicons name="checkmark" size={13} color={colors.onLime} /> : null}
                 </View>
               )}
             </View>

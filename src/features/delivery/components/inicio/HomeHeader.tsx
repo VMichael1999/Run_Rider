@@ -7,7 +7,8 @@ import { DeliveryColors } from '@theme/colors';
 import { useDeliveryColors } from '../../theme';
 import { GradientFill } from '../GradientFill';
 import { Avatar } from '../Avatar';
-import { DELIVERY_ADDRESS } from '../../data/mock';
+import { useSelectedAddress } from '../../store/useAddressesStore';
+import { unreadCount, useNotificationsStore } from '../../store/useNotificationsStore';
 
 /** Lo que se esconde al hacer scroll: el buscador (46) y el espacio sobre él (12), más 2 de padding inferior. */
 export const HEADER_COLLAPSE_DISTANCE = 60;
@@ -17,11 +18,15 @@ interface HomeHeaderProps {
   topInset: number;
   scrollY: SharedValue<number>;
   onAvatarPress: () => void;
+  onAddressPress: () => void;
+  onBellPress: () => void;
 }
 
 /** Cabecera oscura del inicio (.hdr): se compacta escondiendo el buscador al hacer scroll. */
-export function HomeHeader({ topInset, scrollY, onAvatarPress }: HomeHeaderProps) {
+export function HomeHeader({ topInset, scrollY, onAvatarPress, onAddressPress, onBellPress }: HomeHeaderProps) {
   const colors = useDeliveryColors();
+  const address = useSelectedAddress();
+  const unread = useNotificationsStore((s) => unreadCount(s.items));
 
   const searchStyle = useAnimatedStyle(() => {
     const progress = interpolate(scrollY.value, [0, HEADER_COLLAPSE_DISTANCE], [0, 1], Extrapolation.CLAMP);
@@ -54,29 +59,34 @@ export function HomeHeader({ topInset, scrollY, onAvatarPress }: HomeHeaderProps
           <Avatar initials="LR" />
         </Pressable>
         <Pressable
+          onPress={onAddressPress}
           style={styles.addressWrap}
           accessibilityRole="button"
-          accessibilityLabel={`Entregar en ${DELIVERY_ADDRESS.label}, ${DELIVERY_ADDRESS.street}`}
+          accessibilityLabel={`Entregar en ${address.label}, ${address.street}`}
         >
           <View style={styles.eyebrow}>
             <Ionicons name="location-outline" size={13} color={colors.lime} />
             <Text style={[styles.eyebrowText, { color: colors.onDarkMuted }]}>Entregar en</Text>
           </View>
           <View style={styles.addressRow}>
-            <Text style={[styles.addressLabel, { color: colors.onDark }]}>{DELIVERY_ADDRESS.label}</Text>
-            <Text style={[styles.addressStreet, { color: colors.onDarkHigh }]} numberOfLines={1}>
-              {DELIVERY_ADDRESS.street}
-            </Text>
+            <Text style={[styles.addressLabel, { color: colors.onDark }]} numberOfLines={1}>{address.label}</Text>
+            {/* Una dirección "Otro" se llama como su calle: no se repite. */}
+            {address.street !== address.label ? (
+              <Text style={[styles.addressStreet, { color: colors.onDarkHigh }]} numberOfLines={1}>
+                {address.street}
+              </Text>
+            ) : null}
             <Ionicons name="chevron-down" size={16} color={colors.onDark} />
           </View>
         </Pressable>
         <Pressable
+          onPress={onBellPress}
           style={[styles.bell, { backgroundColor: colors.onDarkFill }]}
           accessibilityRole="button"
-          accessibilityLabel="Notificaciones, tienes avisos nuevos"
+          accessibilityLabel={unread ? `Notificaciones, ${unread} sin leer` : 'Notificaciones'}
         >
           <Ionicons name="notifications-outline" size={16} color={colors.onDark} />
-          <View style={[styles.bellDot, { backgroundColor: colors.lime }]} />
+          {unread > 0 ? <View style={[styles.bellDot, { backgroundColor: colors.lime }]} /> : null}
         </Pressable>
       </View>
 

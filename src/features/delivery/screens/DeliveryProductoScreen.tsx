@@ -23,6 +23,7 @@ import { DeliveryColors } from '@theme/colors';
 import { cartCount, useCartStore } from '@store/useCartStore';
 import { useDeliveryColors } from '../theme';
 import { useStatusBarStyle } from '../hooks/useStatusBarStyle';
+import { useFavoritesStore } from '../store/useFavoritesStore';
 import { StoreLogo } from '../components/StoreLogo';
 import { DeliveryToast, useToast } from '../components/DeliveryToast';
 import { GroupHeader, OptionGroupView } from '../components/producto/OptionGroupView';
@@ -67,7 +68,8 @@ export function DeliveryProductoScreen({ route, navigation }: Props) {
   const [activeGroup, setActiveGroup] = React.useState<string | null>(null);
   const [quantity, setQuantity] = React.useState(1);
   const [note, setNote] = React.useState('');
-  const [favorite, setFavorite] = React.useState(false);
+  const favorite = useFavoritesStore((s) => s.productIds.includes(route.params.productId));
+  const toggleFavorite = useFavoritesStore((s) => s.toggleProduct);
   const addItem = useCartStore((s) => s.addItem);
   const count = useCartStore((s) => cartCount(s.items));
   const { toast, show } = useToast();
@@ -246,7 +248,7 @@ export function DeliveryProductoScreen({ route, navigation }: Props) {
         badgeScale={badgeScale}
         cartRef={cartButtonRef}
         onBack={() => navigation.goBack()}
-        onToggleFavorite={() => setFavorite((value) => !value)}
+        onToggleFavorite={() => toggleFavorite(route.params.productId)}
         onOpenCart={() => navigation.navigate('DeliveryTabs', { screen: 'DeliveryCarrito' })}
       />
 
@@ -284,7 +286,7 @@ export function DeliveryProductoScreen({ route, navigation }: Props) {
           accessibilityRole="button"
           accessibilityLabel={`Agregar ${quantity} al carrito por ${formatSoles(total)}`}
         >
-          <Text style={[styles.addText, { color: colors.ink }]}>Agregar · {formatSoles(total)}</Text>
+          <Text style={[styles.addText, { color: colors.onLime }]}>Agregar · {formatSoles(total)}</Text>
         </Pressable>
       </View>
 
@@ -402,7 +404,7 @@ function ProductTopBar({
       >
         <Ionicons name="bag-outline" size={20} color={colors.ink} />
         {count > 0 ? (
-          <Reanimated.View style={[styles.badge, { backgroundColor: colors.ink, borderColor: colors.card }, badgeStyle]}>
+          <Reanimated.View style={[styles.badge, { backgroundColor: colors.inkFill, borderColor: colors.card }, badgeStyle]}>
             <Text style={[styles.badgeText, { color: colors.lime }]}>{count}</Text>
           </Reanimated.View>
         ) : null}

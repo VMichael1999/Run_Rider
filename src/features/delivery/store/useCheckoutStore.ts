@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { DELIVERY_ADDRESS, MAP_POINTS } from '../data/mock';
+import { selectedAddress, useAddressesStore } from './useAddressesStore';
 
 export interface CheckoutAddress {
   label: string;
@@ -7,11 +7,6 @@ export interface CheckoutAddress {
   coordinate: { latitude: number; longitude: number };
 }
 
-const HOME_ADDRESS: CheckoutAddress = {
-  label: DELIVERY_ADDRESS.label,
-  detail: DELIVERY_ADDRESS.detail,
-  coordinate: MAP_POINTS.home,
-};
 
 export type Fulfillment = 'delivery' | 'pickup';
 
@@ -19,8 +14,9 @@ interface CheckoutState {
   fulfillment: Fulfillment;
   /** Cupón del local elegido en "Mis cupones" (porcentaje sobre el subtotal). */
   couponId: string | null;
-  address: CheckoutAddress;
-  setAddress: (address: CheckoutAddress) => void;
+  /** Punto elegido en el mapa solo para este pedido; sin él se usa la dirección guardada elegida. */
+  addressOverride: CheckoutAddress | null;
+  setAddress: (address: CheckoutAddress | null) => void;
   setFulfillment: (fulfillment: Fulfillment) => void;
   setCoupon: (couponId: string | null) => void;
   reset: () => void;
@@ -29,9 +25,16 @@ interface CheckoutState {
 export const useCheckoutStore = create<CheckoutState>((set) => ({
   fulfillment: 'delivery',
   couponId: null,
-  address: HOME_ADDRESS,
-  setAddress: (address) => set({ address }),
+  addressOverride: null,
+  setAddress: (address) => set({ addressOverride: address }),
   setFulfillment: (fulfillment) => set({ fulfillment }),
   setCoupon: (couponId) => set({ couponId }),
-  reset: () => set({ fulfillment: 'delivery', couponId: null, address: HOME_ADDRESS }),
+  reset: () => set({ fulfillment: 'delivery', couponId: null, addressOverride: null }),
 }));
+
+/** Dirección de entrega del checkout: la elegida en el mapa o, si no, la guardada que está elegida. */
+export function useCheckoutAddress(): CheckoutAddress {
+  const override = useCheckoutStore((s) => s.addressOverride);
+  const saved = useAddressesStore((s) => selectedAddress(s));
+  return override ?? { label: saved.label, detail: saved.detail, coordinate: saved.coordinate };
+}

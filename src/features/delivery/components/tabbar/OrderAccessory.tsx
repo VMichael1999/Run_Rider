@@ -5,7 +5,8 @@ import { useDeliveryColors } from '../../theme';
 import { StoreLogo } from '../StoreLogo';
 import { Avatar } from '../Avatar';
 import type { OrderPillData } from '../../hooks/useOrderPill';
-import { COURIER, DELIVERY_ADDRESS, RESTAURANTS, ACTIVE_ORDER } from '../../data/mock';
+import { COURIER, RESTAURANTS, ACTIVE_ORDER } from '../../data/mock';
+import { useSelectedAddress } from '../../store/useAddressesStore';
 
 interface OrderAccessoryProps {
   pill: OrderPillData;
@@ -15,11 +16,12 @@ interface OrderAccessoryProps {
 /** Contenido del accessory: el pedido en curso en 48 pt (logo o repartidor, estado y minutos). */
 export function OrderAccessory({ pill, onPress }: OrderAccessoryProps) {
   const colors = useDeliveryColors();
+  const address = useSelectedAddress();
   const restaurant = RESTAURANTS[ACTIVE_ORDER.restaurantId];
   const onTheWay = pill.status === 'en-camino';
   const title = onTheWay ? `${COURIER.firstName} está en camino` : 'Preparando tu pedido';
   const subtitle = onTheWay
-    ? `A ${DELIVERY_ADDRESS.label} · Llega ${pill.arrivesAt}`
+    ? `A ${address.label} · Llega ${pill.arrivesAt}`
     : `${restaurant.name.split(' – ')[0]} · Llega ${pill.arrivesAt}`;
 
   return (

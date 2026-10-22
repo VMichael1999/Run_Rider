@@ -189,7 +189,7 @@ export function ConfirmDialog({ visible, rows, onCancel, onConfirm }: ConfirmDia
               <Text style={[styles.actionText, { color: colors.ink }]}>Cancelar</Text>
             </Pressable>
             <Pressable onPress={onConfirm} style={[styles.action, { backgroundColor: colors.lime }]} accessibilityRole="button">
-              <Text style={[styles.actionText, { color: colors.ink }]}>Confirmar</Text>
+              <Text style={[styles.actionText, { color: colors.onLime }]}>Confirmar</Text>
             </Pressable>
           </View>
         </Reanimated.View>

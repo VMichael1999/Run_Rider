@@ -5,6 +5,7 @@ import MapView, { Marker, Polyline, PROVIDER_GOOGLE, type LatLng } from 'react-n
 import { FontFamily } from '@theme/fonts';
 import { getRoutePolyline } from '@shared/services/googleMapsService';
 import { useCarRouteAnimation } from '@features/cliente/trayecto-taxi/hooks/useCarRouteAnimation';
+import { useDeliveryMapStyle } from '../../hooks/useDeliveryMapStyle';
 import { useDeliveryColors } from '../../theme';
 import type { Restaurant } from '../../data/mock';
 
@@ -31,6 +32,7 @@ export const TrackingMap = React.forwardRef<TrackingMapHandle, TrackingMapProps>
   ref,
 ) {
   const colors = useDeliveryColors();
+  const mapStyle = useDeliveryMapStyle();
   const mapRef = React.useRef<MapView>(null);
   const [route, setRoute] = React.useState<LatLng[]>([storeCoordinate, destination]);
 
@@ -72,6 +74,7 @@ export const TrackingMap = React.forwardRef<TrackingMapHandle, TrackingMapProps>
     <MapView
       ref={mapRef}
       provider={PROVIDER_GOOGLE}
+        {...mapStyle}
       style={StyleSheet.absoluteFill}
       initialRegion={{
         latitude: (storeCoordinate.latitude + destination.latitude) / 2,
@@ -101,8 +104,8 @@ export const TrackingMap = React.forwardRef<TrackingMapHandle, TrackingMapProps>
 
       {carActive && car.currentPosition ? (
         <Marker coordinate={car.currentPosition} anchor={{ x: 0.5, y: 0.5 }} zIndex={10} tracksViewChanges={false}>
-          <View style={[styles.car, { backgroundColor: colors.lime, borderColor: colors.ink }]}>
-            <Ionicons name="car-outline" size={18} color={colors.ink} />
+          <View style={[styles.car, { backgroundColor: colors.lime, borderColor: colors.onLime }]}>
+            <Ionicons name="car-outline" size={18} color={colors.onLime} />
           </View>
         </Marker>
       ) : null}

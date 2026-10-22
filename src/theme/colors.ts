@@ -80,6 +80,12 @@ const DeliveryLight = {
   bg: '#F4F5F2',
   card: '#FFFFFF',
   ink: '#111519',
+  // Texto e íconos sobre lima (botón principal, casillas): siempre tinta.
+  onLime: '#111519',
+  // Fondos tinta (contadores, avisos, placa, FAB): siempre oscuros, con texto lima o blanco.
+  inkFill: '#111519',
+  // Base oscura del banner y las ofertas del inicio.
+  heroBase: '#111519',
   muted: '#555E66',
   faint: '#A0A9B1',
   line: '#E6E8E3',
@@ -129,10 +135,62 @@ const DeliveryLight = {
   black: '#000000',
 } as const;
 
+type DeliveryPalette = { [K in keyof typeof DeliveryLight]: (typeof DeliveryLight)[K] extends readonly string[] ? readonly [string, string, string] : string };
+
+/**
+ * Modo oscuro de delivery (no está en el mockup): mismas superficies que el modo oscuro de viajes,
+ * el lima se mantiene y el oliva pasa a lima porque sobre fondo oscuro sí se lee.
+ */
+const DeliveryDark: DeliveryPalette = {
+  bg: '#0E1114',
+  card: '#171C21',
+  ink: '#ECEFF1',
+  onLime: '#111519',
+  inkFill: '#2B333B',
+  heroBase: '#0B0E11',
+  muted: '#A0A9B1',
+  faint: '#6B747C',
+  line: '#29313A',
+  soft: '#20262D',
+  lime: '#D4E838',
+  limeStrong: '#B9CC2E',
+  olive: '#D4E838',
+  limeSoft: '#2A3112',
+  ok: '#3DCB7E',
+  red: '#FF7A6E',
+  redSoft: '#3A1916',
+  star: '#E8A317',
+  glassVeil: 'rgba(23, 28, 33, 0.5)',
+  glassEdge: 'rgba(255, 255, 255, 0.12)',
+  glassFallback: 'rgba(23, 28, 33, 0.92)',
+  glassSelection: 'rgba(255, 255, 255, 0.1)',
+  dim: 'rgba(0, 0, 0, 0.6)',
+  spinnerTrack: 'rgba(236, 239, 241, 0.2)',
+  yape: '#5B1F7A',
+  productHero: '#1C2126',
+  groupActive: '#1E2414',
+  flame: '#FF8A3D',
+  headerGradient: ['#232A31', '#14181C', '#0B0E11'],
+  heroGlow: '#2E3740',
+  dealGlow: '#232A31',
+  avatarBg: '#2B333B',
+  online: '#3DCB7E',
+  onDark: '#FFFFFF',
+  onDarkHigh: 'rgba(255, 255, 255, 0.85)',
+  onDarkMuted: 'rgba(255, 255, 255, 0.7)',
+  onDarkLine: 'rgba(255, 255, 255, 0.35)',
+  onDarkFill: 'rgba(255, 255, 255, 0.12)',
+  heroButton: 'rgba(17, 21, 25, 0.45)',
+  loadingBg: '#0B0B0C',
+  loadingTrack: '#26282B',
+  loadingText: '#8E969D',
+  shadow: '#000000',
+  black: '#000000',
+};
+
 export const DeliveryColors = {
-  light: DeliveryLight,
-  // El mockup solo trae el modo claro; el oscuro se usa cuando se apruebe la propuesta.
-  dark: DeliveryLight,
+  light: DeliveryLight as DeliveryPalette,
+  dark: DeliveryDark,
 } as const;
 
 export const ThemeColors = {
