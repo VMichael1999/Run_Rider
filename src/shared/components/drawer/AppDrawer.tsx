@@ -1,6 +1,11 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { SideMenu, type SideMenuSection, type SideMenuThemeOverrides } from 'expo-reanimated-side-menu';
+import {
+  SideMenu,
+  type SideMenuSection,
+  type SideMenuThemeOverrides,
+  type SideMenuVariant,
+} from 'expo-reanimated-side-menu';
 import type { ClienteStackParamList } from '@navigation/types';
 import { Colors } from '@theme/colors';
 import { useAppTheme } from '@theme/useAppTheme';
@@ -34,7 +39,9 @@ interface AppDrawerProps<Route extends string> {
   /** Con él, se muestra el botón para cambiar entre viajes y delivery. */
   mode?: AppMode;
   onToggleMode?: () => void;
-  /** La pantalla que se corre e inclina en 3D al abrir el menú; sin ella, el menú solo se superpone. */
+  /** Estilo del menú; por defecto el panel encima y la pantalla inclinada en 3D. */
+  variant?: SideMenuVariant;
+  /** La pantalla que se aparta al abrir el menú; sin ella, el menú solo se superpone. */
   children?: React.ReactNode;
 }
 
@@ -71,6 +78,7 @@ export function AppDrawer<Route extends string = ClienteRoute>({
   phoneLabel,
   mode,
   onToggleMode,
+  variant,
   children,
 }: AppDrawerProps<Route>) {
   const appTheme = useAppTheme();
@@ -116,6 +124,7 @@ export function AppDrawer<Route extends string = ClienteRoute>({
 
   return (
     <SideMenu
+      variant={variant}
       visible={visible}
       onClose={onClose}
       theme={theme}
