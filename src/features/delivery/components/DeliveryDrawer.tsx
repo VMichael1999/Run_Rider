@@ -26,9 +26,11 @@ const SECTION_LABELS = {
 interface DeliveryDrawerProps {
   visible: boolean;
   onClose: () => void;
+  /** La pantalla que se inclina como una carta al abrir el menú. */
+  children: React.ReactNode;
 }
 
-export function DeliveryDrawer({ visible, onClose }: DeliveryDrawerProps) {
+export function DeliveryDrawer({ visible, onClose, children }: DeliveryDrawerProps) {
   const navigation = useNavigation<NavigationProp<DeliveryStackParamList>>();
   const logout = useAuthStore((s) => s.logout);
   const phone = useAuthStore((s) => s.phone);
@@ -37,6 +39,7 @@ export function DeliveryDrawer({ visible, onClose }: DeliveryDrawerProps) {
 
   return (
     <AppDrawer<DeliveryRoute>
+      variant="cards"
       visible={visible}
       onClose={onClose}
       options={DELIVERY_OPTIONS}
@@ -47,6 +50,8 @@ export function DeliveryDrawer({ visible, onClose }: DeliveryDrawerProps) {
       phoneLabel={phone ? `${countryCode} ${phone}` : '+51 999 999 999'}
       mode="delivery"
       onToggleMode={() => setMode('viajes')}
-    />
+    >
+      {children}
+    </AppDrawer>
   );
 }
