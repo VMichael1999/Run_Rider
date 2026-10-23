@@ -1,13 +1,11 @@
 import React from 'react';
 import {
   ActivityIndicator,
-  Animated,
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
-  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_GOOGLE, type Region } from 'react-native-maps';
@@ -89,7 +87,6 @@ export function ClienteHomeScreen() {
       ? `${discount.label} · ${discount.percent} % menos`
       : `Hoy ${discount.percent} % menos`;
   const isDark = useThemeStore((s) => s.isDark);
-  const { width } = useWindowDimensions();
   const mapRef = React.useRef<MapView | null>(null);
   const [isCenteringMap, setIsCenteringMap] = React.useState(false);
   const [selectedFavoriteId, setSelectedFavoriteId] = React.useState<string | null>(null);
@@ -141,46 +138,7 @@ export function ClienteHomeScreen() {
   const countryCode = useAuthStore((s) => s.countryCode);
   const [drawerOpen, setDrawerOpen] = React.useState<boolean>(false);
   const setAppMode = useAppModeStore((s) => s.setMode);
-  const drawerProgress = React.useRef(new Animated.Value(0)).current;
-
   const phoneLabel = phone ? `${countryCode} ${phone}` : '+51 999 999 999';
-  const drawerSceneOffset = Math.round(width * 0.54);
-
-  React.useEffect(() => {
-    Animated.timing(drawerProgress, {
-      toValue: drawerOpen ? 1 : 0,
-      duration: drawerOpen ? 280 : 220,
-      useNativeDriver: false,
-    }).start();
-  }, [drawerOpen, drawerProgress]);
-
-  const animatedSceneStyle = {
-    borderRadius: drawerProgress.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 24],
-    }),
-    transform: [
-      { perspective: 900 },
-      {
-        translateX: drawerProgress.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, drawerSceneOffset],
-        }),
-      },
-      {
-        scale: drawerProgress.interpolate({
-          inputRange: [0, 1],
-          outputRange: [1, 0.86],
-        }),
-      },
-      {
-        rotateY: drawerProgress.interpolate({
-          inputRange: [0, 1],
-          outputRange: ['0deg', '-9deg'],
-        }),
-      },
-    ],
-  };
 
   React.useEffect(() => {
     let active = true;
@@ -254,8 +212,17 @@ export function ClienteHomeScreen() {
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: theme.drawer }]}>
-      <Animated.View style={[styles.scene, { backgroundColor: theme.background }, animatedSceneStyle]}>
+    // El menú corre e inclina en 3D la pantalla que envuelve.
+    <AppDrawer
+      visible={drawerOpen}
+      onClose={() => setDrawerOpen(false)}
+      onNavigate={(route) => navigation.navigate(route as never)}
+      onLogout={logout}
+      phoneLabel={phoneLabel}
+      mode="viajes"
+      onToggleMode={() => setAppMode('delivery')}
+    >
+      <View style={[styles.scene, { backgroundColor: theme.background }]}>
         {/* Mapa a pantalla completa con la barra superior flotando encima */}
         <View style={styles.mapArea}>
           <MapView
@@ -407,25 +374,12 @@ export function ClienteHomeScreen() {
             ))}
           </View>
         </View>
-      </Animated.View>
-
-      <AppDrawer
-        visible={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        onNavigate={(route) => navigation.navigate(route as never)}
-        onLogout={logout}
-        phoneLabel={phoneLabel}
-        mode="viajes"
-        onToggleMode={() => setAppMode('delivery')}
-      />
-    </View>
+      </View>
+    </AppDrawer>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scene: {
     flex: 1,
     overflow: 'hidden',
