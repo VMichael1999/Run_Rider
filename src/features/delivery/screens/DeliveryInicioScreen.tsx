@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 import type { DeliveryStackParamList } from '@navigation/types';
 import { StyleSheet, View } from 'react-native';
+import { setStatusBarStyle } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Reanimated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { useDeliveryColors } from '../theme';
@@ -38,50 +39,69 @@ export function DeliveryInicioScreen() {
   });
 
   const navigation = useNavigation<NavigationProp<DeliveryStackParamList>>();
+
+  // Con el menú abierto la pantalla se inclina como una carta; la barra de pestañas se oculta para
+  // no quedar flotando encima, y vuelve cuando la pantalla ya regresó a su sitio. Al cerrarse, el
+  // menú deja la barra de estado con texto oscuro: se vuelve a poner clara sobre la cabecera.
+  const drawerWasOpen = React.useRef(false);
+  React.useEffect(() => {
+    if (drawerOpen) {
+      drawerWasOpen.current = true;
+      navigation.setOptions({ tabBarStyle: { display: 'none' } } as never);
+      return;
+    }
+    if (!drawerWasOpen.current) return;
+    const timer = setTimeout(() => {
+      navigation.setOptions({ tabBarStyle: undefined } as never);
+      setStatusBarStyle('light', true);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [drawerOpen, navigation]);
   const noop = React.useCallback(() => undefined, []);
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
-      <Reanimated.ScrollView
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.content,
-          { paddingTop: insets.top + HEADER_BODY + 4, paddingBottom: bottomSpace },
-        ]}
-      >
-        <HeroBanner />
-        <SectionHeader title="Categorías" onSeeAll={noop} />
-        <CategoryStrip categories={CATEGORIES} selectedId={categoryId} onSelect={setCategoryId} />
-        <SectionHeader title="Ofertas para ti" onSeeAll={noop} />
-        <DealStrip deals={DEALS} />
-        {HOME_SECTIONS.map((section) => (
-          <React.Fragment key={section.id}>
-            <SectionHeader title={section.title} onSeeAll={noop} />
-            <View style={styles.grid}>
-              {section.restaurantIds.map((id) => (
-                <RestaurantCard
-                  key={id}
-                  restaurant={RESTAURANTS[id]}
-                  // Solo Burger Ruta tiene su página en el mockup.
-                  onPress={RESTAURANT_DETAILS[id] ? () => navigation.navigate('DeliveryLocal', { restaurantId: id }) : undefined}
-                />
-              ))}
-            </View>
-          </React.Fragment>
-        ))}
-      </Reanimated.ScrollView>
+    <DeliveryDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)}>
+      <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+        <Reanimated.ScrollView
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.content,
+            { paddingTop: insets.top + HEADER_BODY + 4, paddingBottom: bottomSpace },
+          ]}
+        >
+          <HeroBanner />
+          <SectionHeader title="Categorías" onSeeAll={noop} />
+          <CategoryStrip categories={CATEGORIES} selectedId={categoryId} onSelect={setCategoryId} />
+          <SectionHeader title="Ofertas para ti" onSeeAll={noop} />
+          <DealStrip deals={DEALS} />
+          {HOME_SECTIONS.map((section) => (
+            <React.Fragment key={section.id}>
+              <SectionHeader title={section.title} onSeeAll={noop} />
+              <View style={styles.grid}>
+                {section.restaurantIds.map((id) => (
+                  <RestaurantCard
+                    key={id}
+                    restaurant={RESTAURANTS[id]}
+                    // Solo Burger Ruta tiene su página en el mockup.
+                    onPress={RESTAURANT_DETAILS[id] ? () => navigation.navigate('DeliveryLocal', { restaurantId: id }) : undefined}
+                  />
+                ))}
+              </View>
+            </React.Fragment>
+          ))}
+        </Reanimated.ScrollView>
 
-      <HomeHeader
-        topInset={insets.top}
-        scrollY={scrollY}
-        onAvatarPress={() => setDrawerOpen(true)}
-        onAddressPress={() => navigation.navigate('DeliveryDirecciones')}
-        onBellPress={() => navigation.navigate('DeliveryNotificaciones')}
-      />
-      <DeliveryDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
-    </View>
+        <HomeHeader
+          topInset={insets.top}
+          scrollY={scrollY}
+          onAvatarPress={() => setDrawerOpen(true)}
+          onAddressPress={() => navigation.navigate('DeliveryDirecciones')}
+          onBellPress={() => navigation.navigate('DeliveryNotificaciones')}
+        />
+      </View>
+    </DeliveryDrawer>
   );
 }
 
